@@ -1,0 +1,175 @@
+{% extends 'common/base.html' %}
+{% block css %}
+    <link href="{{ url_for('static',filename='css/paper.css') }}" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">{{ examList[0].test.test_name }}({{ examList[0].unique_id }})</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#Radio">考试结果({{ exam.score }}分)</a>
+                                    <div class="float-right">
+                                        <input type="radio" class="view" name="view" value="all" checked/>查看全部
+                                        <input type="radio" class="view" name="view" value="right"/>只看对题
+                                        <input type="radio" class="view" name="view" value="err"/>只看错题
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div id="Radio" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <ol>
+                                        {% for item in examList %}
+                                            <div class="subject" data-id="{{ item.question.id }}"
+                                                 data-state="{{ item.is_true }}"
+                                                 data-key="{{ item.answer }}" data-skey="{{ item.answer_post }}">
+                                                <li>
+                                                    <span class='type{{ item.question.type }}'>{{ item.question.question_type.name }}</span>
+                                                    {{ item.question.context }}
+                                                    {% if  item.score  ==0 %}
+                                                        <span class="error">({{ item.score }}分)</span>
+                                                    {% else %}
+                                                        <span class="correct">({{ item.score }}分)</span>
+                                                    {% endif %}
+                                                </li>
+                                                {% if item.question.type == 1 %}
+                                                    <ol class="ol1">
+                                                        <li><label data-value="A">
+                                                            <input type="radio" value="A"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_a }}
+                                                        </label></li>
+                                                        <li><label data-value="B">
+                                                            <input type="radio" value="B"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_b }}
+                                                        </label></li>
+                                                        <li><label data-value="C">
+                                                            <input type="radio" value="C"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_c }}
+                                                        </label></li>
+                                                        <li><label data-value="D">
+                                                            <input type="radio" value="D"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_d }}
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type == 2 %}
+                                                    <ol class="ol1">
+                                                        <li><label data-value="A">
+                                                            <input type="checkbox" value="A"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_a }}
+                                                        </label></li>
+                                                        <li><label data-value="B">
+                                                            <input type="checkbox" value="B"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_b }}
+                                                        </label></li>
+                                                        <li><label data-value="C">
+                                                            <input type="checkbox" value="C"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_c }}
+                                                        </label></li>
+                                                        <li><label data-value="D">
+                                                            <input type="checkbox" value="D"
+                                                                   name="{{ item.question.id }}">{{ item.question.op_d }}
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type ==3 %}
+                                                    <ol class="ol1">
+                                                        <li><label data-value="1">
+                                                            <input type="radio" value="1" name="{{ item.question.id }}">对
+                                                        </label></li>
+                                                        <li><label data-value="0">
+                                                            <input type="radio" value="0" name="{{ item.question.id }}">错
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type == 4 %}
+                                                    <ol class="ol2">
+                                                        <li><textarea name="{{ item.question.id }}" rows="3"
+                                                                      cols="40">{{ item.answer_post }}</textarea></li>
+                                                        <span style="color: gray">该题型系统无法完全判定，请交予老师再次评分</span>
+                                                        <p><strong style="color: red">解析:</strong>{{ item.answer }}</p>
+                                                    </ol>
+                                                {% else %}
+                                                    <ol class="ol2">
+                                                        <li><textarea name="{{ item.question.id }}" rows="3"
+                                                                      cols="40">{{ item.answer_post }}</textarea></li>
+                                                        <span style="color: gray">该题型系统无法完全判定，请交予老师再次评分</span>
+                                                        <p><strong style="color: red">解析:</strong>{{ item.answer }}</p>
+                                                    </ol>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+                            <a href="{{ url_for("main.examResult_list") }}" class="float-right btn">返回</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function (ev) {
+            var len = $('.subject').length;
+            $('.subject').each(function (index) {
+                var i = index
+                var self = $(this)
+                var answer = self.data('key').toString().split("");
+                var answer2 = self.data('skey').toString().split("");
+
+                self.find('label').each(function () {
+                    var label = $(this);
+                    for (var i = 0; i < answer.length; i++) {
+                        for (var j = 0; j < answer2.length; j++) {
+                            if (answer[i] == answer2[j] && answer[i] == label.data('value')) {
+                                label.parent().addClass('correct');
+                            } else if (answer[i] == label.data('value')) {
+                                label.parent().addClass('all—right');
+                            } else if (answer2[j] == label.data('value')) {
+                                label.parent().addClass('error');
+                            }
+                        }
+                    }
+
+                })
+            })
+
+            $(".view").change(function () {
+                var res = $("[name=view]:checked").val();
+                if (res == "all") {
+                    $('.subject').prop("hidden", false)
+                } else if (res == "right") {
+                    $('.subject').each(function (index) {
+                        var i = index
+                        var self = $(this)
+                        if (self.data('state') == "0") {
+                            self.prop("hidden", true)
+                        }
+                        if (self.data('state') == "1") {
+                            self.prop("hidden", false)
+                        }
+                    })
+                } else if (res == "err") {
+                    $('.subject').each(function (index) {
+                        var i = index
+                        var self = $(this)
+                        if (self.data('state') == "0") {
+                            self.prop("hidden", false)
+                        }
+                        if (self.data('state') == "1") {
+                            self.prop("hidden", true)
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+{% endblock %}

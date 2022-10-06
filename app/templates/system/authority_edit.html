@@ -1,0 +1,83 @@
+{% extends 'common/base.html' %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 系统管理</a></li>
+                <li class="active">权限编辑</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">权限编辑</h3>
+                    </div>
+                    <form role="form" action="{{ url_for('main.authority_add') }}" method="post"
+                          class="form-horizontal">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="input_rid" class="control-label col-xs-4">
+                                    角色</label>
+                                <div class="col-xs-4">
+                                    <select class="form-control" id="rid" name="rid" onchange="sel()">
+                                        {% for v in rid %}
+                                            <option value="{{ v[0] }}">{{ v[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="input_mid" class="control-label col-xs-4">
+                                    目录</label>
+                                <div class="col-xs-4" style="padding: 0 15px;">
+                                    <div style="border:1px solid gainsboro ;padding: 0 20px;height: 300px;overflow: auto"
+                                         id="mids">
+                                        {% for v in menus %}
+                                            <div style="line-height: 30px">
+                                                <input type="checkbox" name="mid" value="{{ v.id }}" id="{{ v.id }}"
+                                                       class="mid"
+                                                       style="display: inline-block;vertical-align: middle;margin:0 10px;"/>{{ v.menustr }}
+                                            </div>
+                                            {% for s in v.children %}
+                                                <div style="line-height: 30px">
+                                                    <input type="checkbox" name="mid" value="{{ s.id }}" id="{{ s.id }}"
+                                                           class="mid"
+                                                           style="display: inline-block;vertical-align: middle;margin:0 10px 0 40px;"/>{{ s.menustr }}
+                                                </div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-footer" style="text-align: center">
+                            <button class="btn btn-primary" type="submit">提交</button>
+                            <a href="{{ url_for("main.authority_list") }}" class="float-right btn">返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            sel();
+        })
+
+        function sel() {
+            var option = $("#rid option:selected").val();
+            var menu_in = {{ menu_in}}[option];
+            $(".mid").prop('checked', false)
+            for (v in menu_in) {
+                var vname = "#" + menu_in[v]
+                $(vname).prop('checked', true);
+            }
+        }
+
+    </script>
+{% endblock %}

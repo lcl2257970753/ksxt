@@ -1,0 +1,343 @@
+{% extends 'common/base.html' %}
+{% block css %}
+    <link href="{{ url_for('static',filename='css/paper.css') }}" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div id="paper" style="overflow: scroll;">
+        <section class="content" id="showcontent">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <h3 class="box-title">{{ questions[0].test.test_name }}</h3>
+                            <strong class="align-content-center" style="color: red">(提示：退出全屏即结束考试)</strong>
+                        </div>
+                        <div class="panel panel-default">
+                            <form action="" method="POST" role="form">
+                                <div class="panel-body">
+                                    <ol>
+                                        {% for item in questions %}
+                                            <div class="subject" data-i="{{ loop.index - 1 }}" data-answer="false"
+                                                 data-score="{{ item.score }}" data-id="{{ item.question.id }}" data-type="{{item.question.type}}"
+                                                 data-answer_post>
+                                                <li>
+                                                    <span class='type{{ item.question.type }}'>{{ item.question.question_type.name }}</span>
+                                                    {{ item.question.context }}({{ item.score }}分)
+                                                </li>
+                                                {% if item.question.type == 1 %}
+                                                    <ol class="ol1">
+                                                        <li><label><input type="radio" value="A"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_a }}
+                                                        </label></li>
+                                                        <li><label><input type="radio" value="B"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_b }}
+                                                        </label></li>
+                                                        <li><label><input type="radio" value="C"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_c }}
+                                                        </label></li>
+                                                        <li><label><input type="radio" value="D"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_d }}
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type == 2 %}
+                                                    <ol class="ol1">
+                                                        <li><label><input type="checkbox" value="A"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_a }}
+                                                        </label></li>
+                                                        <li><label><input type="checkbox" value="B"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_b }}
+                                                        </label></li>
+                                                        <li><label><input type="checkbox" value="C"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_c }}
+                                                        </label></li>
+                                                        <li><label><input type="checkbox" value="D"
+                                                                          name="{{ item.question.id }}">{{ item.question.op_d }}
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type ==3 %}
+                                                    <ol class="ol1">
+                                                        <li><label><input type="radio" value="1"
+                                                                          name="{{ item.question.id }}">对
+                                                        </label></li>
+                                                        <li><label><input type="radio" value="0"
+                                                                          name="{{ item.question.id }}">错
+                                                        </label></li>
+                                                    </ol>
+                                                {% elif item.question.type == 4 %}
+                                                    <ol class="ol2">
+                                                        <li><textarea name="{{ item.question.id }}" rows="3"
+                                                                      cols="40"></textarea></li>
+                                                    </ol>
+
+                                                {% else %}
+                                                    <ol class="ol2">
+                                                        <li><textarea name="{{ item.question.id }}" rows="3"
+                                                                      cols="40"></textarea></li>
+                                                    </ol>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </ol>
+                                    <button class="btn btn-success" type="submit" style="text-align: center">交卷</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <aside class="processor">
+            <section class="time" id="time">
+                00时00分00秒
+            </section>
+            <section class="timu">
+                {% for item in questions %}
+                    <div data-i="{{ loop.index }}">{{ loop.index }}</div>
+                {% endfor %}
+            </section>
+        </aside>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            openFullscreen();
+        })
+        var len = $('.subject').length;
+        var unanswer = len;
+        var flag = true;
+
+        // 单选题、多选题、判断题监听点击选项
+        $('.subject ol li label').click(function () {
+            // 获得本题的div
+            var sub = $(this).parent().parent().parent()
+            var indexs = sub.data('i')
+            var value = ""
+            $(this).parent().parent().find('input:checked').each(function () {
+                value += $(this).val();
+            })
+            sub.data('answer_post', value);
+            // 判断此题是否回答过
+            if (sub.data('answer') == false) {
+                // 没有回答过给processor下的指定题号添加answered样式
+                $('.timu').children().eq(indexs).addClass('answered');
+                // 未答题目－1
+                unanswer--;
+                sub.data('answer', true)
+            }
+            //清除了答案，变成未答题
+            if (value == "" || value.length == 0) {
+                $('.timu').children().eq(indexs).removeClass('answered');
+                unanswer++
+                sub.data('answer', false)
+            }
+
+            // siblings() 获得匹配集合中每个元素的同胞，通过选择器进行筛选是可选的。
+            $(this).parent().parent().find(':input').not('input:checked').parent().parent().removeClass('checked');
+            $(this).parent().parent().find('input:checked').parent().parent().addClass('checked')
+        })
+
+        //文本类型监听
+        $('.subject ol li textarea').change(function () {
+            // 获得本题的div
+            var sub = $(this).parent().parent().parent()
+            var indexs = sub.data('i')
+            var value = $(this).val().replace(/\s+/g, "");
+
+            sub.data('answer_post', value)
+            // 判断此题是否回答过
+            if (sub.data('answer') == false) {
+                // 没有回答过给processor下的指定题号添加answered样式
+                $('.timu').children().eq(indexs).addClass('answered');
+                // 未答题目－1
+                unanswer--
+                sub.data('answer', true)
+            }
+            //清除了答案，变成未答题
+            if (value == "" || value.length == 0) {
+                $('.timu').children().eq(indexs).removeClass('answered');
+                unanswer++
+                sub.data('answer', false)
+            }
+        })
+
+        // 交卷功能
+        // (1)点击交卷
+        $('form').submit(function (ev) {
+            ev.preventDefault()
+            unAnswer();
+        })
+
+        // (2)判断是否有未答题目
+        function unAnswer() {
+            if (unanswer != 0) {
+                layer.open({
+                    title: '警告',
+                    content: "还有" + unanswer + "道题目未做！",
+                    icon: 2,
+                    btn: ["取消", "确认"],
+                    function(index) {
+                        return false;
+                    },
+                    btn2: function (index) {
+                        postAnswer();
+                    }
+                });
+            } else {
+                postAnswer();
+            }
+        }
+
+        // (2)提交答案的post请求
+        function postAnswer() {
+            var tip = layer.load(0, {shade: false});
+            var examdetails = [];
+            var unique_id = now.getTime();
+            $('.subject').each(function (index) {
+                var i = index
+                var self = $(this)
+                var examdetail = {
+                    "test_id":{{ exam.test_id }},
+                    "type":self.data('type'),
+                    "question_id": self.data('id'),
+                    "score": self.data('score'),
+                    "answer_post": self.data('answer_post'),
+                    "unique_id": unique_id
+                }
+                examdetails.push(examdetail);
+            });
+            examdetails = JSON.stringify(examdetails);
+            var time = endDate - now
+            var examResult = {
+                "unique_id": unique_id
+            }
+            $.ajax({
+                type: "post",
+                url: "{{ url_for('main.postanswer')}}",
+                contentType: "application/json; charset=utf-8",
+                data: examdetails,
+                success: function (res) {
+                    var count = parseInt(res);
+                    layer.close(tip);
+                    getScore(unique_id, count);
+                }
+
+            })
+
+        }
+
+        // (3)计算得分
+        function getScore(unique_id, count) {
+            $.post("{{ url_for('main.getScore') }}", {
+                "unique_id": unique_id,
+                "exam_id":{{exam.id}},
+                "time": used_time,
+                "count": count
+            }, function (res) {
+                layer.open({
+                    title: '得分',
+                    content: "您本次得分" + res + "分",
+                    icon: 1,
+                    end: function () {
+                        flag = false;
+                        exitFullScreen();
+                        location.href = "{{ url_for('main.examResult') }}?unique_id=" + unique_id;
+                    }
+                })
+            })
+
+        }
+
+
+        // 倒计时功能
+        //小于10的数字前面补0
+        function p(n) {
+            return n < 10 ? '0' + n : n;
+        }
+
+        //获取当前时间
+        var now = new Date();
+        //获取结束时间
+        var endDate = new Date();
+        //设置考试时间（单位分钟）
+        endDate.setMinutes(now.getMinutes() + {{ exam.time }});
+        var used_time = 0;
+
+        function getTime() {
+            var startDate = new Date();
+            var countDown = (endDate.getTime() - startDate.getTime()) / 1000;
+            var h = parseInt(countDown / (60 * 60) % 24);
+            var m = parseInt(countDown / 60 % 60);
+            var s = parseInt(countDown % 60);
+            $('.time').html(p(h) + '时' + p(m) + '分' + p(s) + '秒');
+            if (countDown <= 0) {
+                document.getElementById('time').innerHTML = '考试结束';
+                layer.open({
+                    title: '警告',
+                    content: '考试时间到，试卷已经提交！',
+                    icon: 5,
+                    end: function () {
+                        postAnswer();
+                    }
+                })
+            } else {
+                used_time++;
+                setTimeout('getTime()', 500);
+            }
+        }
+
+        getTime();
+
+        function openFullscreen() {
+            var element =document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+        }
+
+
+        window.onresize = function () {
+            console.info(checkFull());
+            if (!checkFull() && flag) {
+                layer.open({
+                title: '提示',
+                content: '你已退出考试！',
+                icon: 5,
+                end:function () {
+                    postAnswer();
+                }
+            })
+            }
+
+        }
+
+        function checkFull() {
+            var isFull=!!(document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement || document.fullscreenElement);
+            if (isFull === undefined) {
+                isFull = false;
+            }
+            return isFull;
+        }
+
+        function exitFullScreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExiFullscreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    </script>
+{% endblock %}

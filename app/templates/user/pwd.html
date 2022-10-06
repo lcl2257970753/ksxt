@@ -1,0 +1,55 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 个人资料</a></li>
+                <li class="active">修改密码</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">修改密码</h3>
+                    </div>
+                    <form role="form" method="post" class="form-horizontal">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="input_pwd" class="control-label col-xs-4">{{ form.old_pwd.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.old_pwd }}
+                                </div>
+                                {% for err in form.old_pwd.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_newpwd"
+                                       class="control-label col-xs-4">{{ form.new_pwd.label }}</label>
+                                <div class=" col-xs-4">
+                                    {{ form.new_pwd }}
+                                </div>
+                                {% for err in form.new_pwd.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="box-footer" style="text-align: center">
+                            {{ form.csrf_token }}
+                            {{ form.submit }}
+                            <a href="{{ url_for("main.home") }}" class="float-right btn">返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

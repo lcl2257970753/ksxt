@@ -1,0 +1,102 @@
+{% extends 'common/base.html' %}
+{% import 'common/page.html' as pg %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>系统管理</a></li>
+                <li class="active">权限列表</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        {% for msg in get_flashed_messages(category_filter=["err"]) %}
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
+                </button>
+                <h4><i class="icon fa fa-ban"></i> 操作失败</h4>
+                {{ msg }}
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">权限目录</h3>
+                        <div class="box-tools">
+                            <a class="btn btn-primary float-right" href="{{ url_for('main.authority_edit') }}"
+                               style="padding: 4px 6px">编辑</a>
+                            <div class="float-right" style="margin-right:5px;width: 200px">
+                                <form action="" method="GET">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="keyword"
+                                               placeholder="请输入角色或目录" value="{{ keyword }}">
+                                        <span class="input-group-btn">
+                                             <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>编号</th>
+                                <th>角色</th>
+                                <th>目录</th>
+                                <th>操作事项</th>
+                            </tr>
+                            {% for v in page_data.items %}
+                                <tr>
+                                    <td>{{ v.id }}</td>
+                                    {% if rows.get(v.rid).index==loop.index %}
+                                        <td rowspan="{{ rows.get(v.rid).count }}">{{ v.role.rolename }}</td>
+                                    {% endif %}
+                                    <td>{{ v.menu.menustr }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.authority_del', id=v.id ) }}"
+                                           class="label label-danger" onclick="del()">删除</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box-footer clearfix">
+                        {{ pg.page(page_data,'main.authority_list',keyword) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            var msg_ok = {{get_flashed_messages(category_filter=["ok"])|tojson}};
+            if (msg_ok.length > 0 && msg_ok != "") {
+                layer.open({
+                    title: '成功',
+                    content: msg_ok.toString(),
+                    icon: 1,
+                    times:2000
+                });
+            }
+            var msg_err = {{get_flashed_messages(category_filter=["err"])|tojson}};
+            if (msg_err.length > 0 && msg_err != "") {
+                layer.open({
+                    title: '失败',
+                    content: msg_err.toString(),
+                    icon: 2,
+                    times:2000
+                });
+            }
+        })
+
+        function del(name) {
+            return confirm("确定删除该权限?");
+        }
+    </script>
+{% endblock %}

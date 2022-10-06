@@ -1,0 +1,357 @@
+{% extends 'common/base.html' %}
+{% import 'common/page.html' as pg %}
+{% block css %}
+    <style>
+        #report {
+            width: 100%;
+            padding: 20px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        td, th {
+            width: 25%;
+        }
+
+        .table {
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .table-bordered > thead > tr > th,
+        .table-bordered > tbody > tr > th,
+        .table-bordered > tfoot > tr > th,
+        .table-bordered > thead > tr > td,
+        .table-bordered > tbody > tr > td,
+        .table-bordered > tfoot > tr > td {
+            border: 1px solid #000000;
+        }
+
+        .tab-content {
+            max-width: 600px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .tab-pane {
+            margin: 20px 0px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 考试管理</a></li>
+                <li class="active">考试报表</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">考试报表</h3>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        <ul id="myTab" class="nav nav-tabs">
+                            <li class="active"><a href="#report" data-toggle="tab">我的报表</a></li>
+                            <li><a href="#examReport" data-toggle="tab">我的考试统计</a></li>
+                            <li><a href="#tests" data-toggle="tab">我的试卷统计(总计版)</a></li>
+                            <li><a href="#testReport" data-toggle="tab">我的试卷统计(单卷版)</a></li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane in active " id="report">
+                                <div>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th colspan="4">百战团队个人报表</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right">{{ session['user'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4">我设计的试卷</td>
+                                        </tr>
+                                        <tr>
+                                            <td>试卷数</td>
+                                            <td>{{ result.test_count }}</td>
+                                            <td>应参考总人数</td>
+                                            <td>{{ result.exams }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>可用数</td>
+                                            <td>{{ result.state }}</td>
+                                            <td>公开数</td>
+                                            <td>{{ result.is_public }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>参考总人数</td>
+                                            <td>{{ result.exams_not_null }}</td>
+                                            <td>参考率</td>
+                                            <td>{{ result.exams_percent }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4">我参与的考试</td>
+                                        </tr>
+                                        <tr>
+                                            <td>参考的次数</td>
+                                            <td colspan="3">{{ result.exams_self }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>最高分</td>
+                                            <td>{{ result.score_max }}</td>
+                                            <td>最低分</td>
+                                            <td>{{ result.score_min }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>平均成绩</td>
+                                            <td colspan="3">{{ result.score_avg }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right">日期：{{ result.Date }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="tests">
+                                <div id="myTests" style="width: 600px;height:400px;"></div>
+                            </div>
+                            <div class="tab-pane" id="testReport">
+                                <div style="font-size: 20px;padding: 10px;margin-bottom:10px;text-align: center">
+                                    <strong>选择试卷：</strong>
+                                    <select id="chose_exam">
+                                        {% for (k,v) in result2.items() %}
+                                            <option value="{{ k }}">{{ v.test_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <div id="myTest" style="width: 600px;height:400px;"></div>
+                                </div>
+
+                            </div>
+                            <div class="tab-pane" id="examReport">
+                                <div id="myExam" style="width: 600px;height:400px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--内容-->
+{% endblock %}
+{% block js %}
+    <script src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/plugins/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/plugins/echarts.min.js') }}"></script>
+    <script type="text/javascript">
+
+        var data ={{ result2|tojson }};
+        var myExamChart = echarts.init(document.getElementById('myExam'));//我的考试
+        var myTests = echarts.init(document.getElementById('myTests'));//我的试卷（总计）
+        var myTestChart = echarts.init(document.getElementById('myTest'));//我的试卷（单卷版）
+
+        var options_1 = {
+            title: {
+                text: '参与考试统计'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            toolbox: {
+                feature: {
+                    dataView: {
+                        show: true,
+                        readOnly: false,
+                        optionToContent: function (opt) {
+                            var axisData = opt.xAxis[0].data;
+                            var series = opt.series;
+                            var tdHeads = '<td  style="padding:0 10px">名称</td>';
+                            series.forEach(function (item) {
+                                tdHeads += '<td style="padding: 0 10px">' + item.name + '</td>';
+                            });
+                            var table = '<table border="1" style="margin-left:20px;border-collapse:collapse;font-size:14px;text-align:center"><tbody><tr>' + tdHeads + '</tr>';
+                            var tdBodys = '';
+                            for (var i = 0, l = axisData.length; i < l; i++) {
+                                for (var j = 0; j < series.length; j++) {
+                                    if (typeof(series[j].data[i]) == 'object') {
+                                        tdBodys += '<td>' + series[j].data[i].value + '</td>';
+                                    } else {
+                                        tdBodys += '<td>' + series[j].data[i] + '</td>';
+                                    }
+                                }
+                                table += '<tr><td style="padding: 0 10px">' + axisData[i] + '</td>' + tdBodys + '</tr>';
+                                tdBodys = '';
+                            }
+                            table += '</tbody></table>';
+                            return table;
+                        }
+                    },
+                    magicType: {show: true, type: ['bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            legend: {
+                data: ['成绩']
+            },
+            xAxis: {
+                data: {{ result.myExam_xAxis |tojson}}
+            },
+            yAxis: {},
+            series: [{
+                name: '成绩',
+                type: 'line',
+                data: {{result.myExam_yAxis}}
+            }]
+        };
+        var options_3 = {
+            title: {
+                text: '我的试卷（总计）'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['最高分', '最低分', '平均分',]
+            },
+            toolbox: {
+                feature: {
+                    dataView: {
+                        show: true,
+                        readOnly: false,
+                        optionToContent: function (opt) {
+                            var axisData = opt.xAxis[0].data;
+                            var series = opt.series;
+                            var tdHeads = '<td  style="padding:0 10px">名称</td>';
+                            series.forEach(function (item) {
+                                tdHeads += '<td style="padding: 0 10px">' + item.name + '</td>';
+                            });
+                            var table = '<table border="1" style="margin-left:20px;border-collapse:collapse;font-size:14px;text-align:center"><tbody><tr>' + tdHeads + '</tr>';
+                            var tdBodys = '';
+                            for (var i = 0, l = axisData.length; i < l; i++) {
+                                for (var j = 0; j < series.length; j++) {
+                                    if (typeof(series[j].data[i]) == 'object') {
+                                        tdBodys += '<td>' + series[j].data[i].value + '</td>';
+                                    } else {
+                                        tdBodys += '<td>' + series[j].data[i] + '</td>';
+                                    }
+                                }
+                                table += '<tr><td style="padding: 0 10px">' + axisData[i] + '</td>' + tdBodys + '</tr>';
+                                tdBodys = '';
+                            }
+                            table += '</tbody></table>';
+                            return table;
+                        }
+                    },
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: {{ result3.myTests_xAxis|tojson}}
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '最高分',
+                    type: 'line',
+                    data: {{ result3.myTests_Max }}
+                },
+                {
+                    name: '最低分',
+                    type: 'line',
+                    data: {{ result3.myTests_Min }}
+                },
+                {
+                    name: '平均分',
+                    type: 'line',
+                    data: {{ result3.myTests_avg }}
+                },
+            ]
+        };
+
+        $(function () {
+            var i = $("#chose_exam").val();
+            myechart(i)
+        })
+
+        myExamChart.setOption(options_1);
+        myTests.setOption(options_3);
+
+
+        $("#chose_exam").change(function () {
+            var i = $("#chose_exam").val();
+            myechart(i);
+        })
+
+        function myechart(i) {
+            var options_2 = {
+                title: {
+                    text: '我的试卷（单卷版）'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                toolbox: {
+                    feature: {
+                        dataView: {
+                            show: true,
+                            readOnly: false,
+                            optionToContent: function (opt) {
+                                var axisData = opt.xAxis[0].data;
+                                var series = opt.series;
+                                var tdHeads = '<td  style="padding:0 10px">考生</td>';
+                                series.forEach(function (item) {
+                                    tdHeads += '<td style="padding: 0 10px">' + item.name + '</td>';
+                                });
+                                var table = '<table border="1" style="margin-left:20px;border-collapse:collapse;font-size:14px;text-align:center"><tbody><tr>' + tdHeads + '</tr>';
+                                var tdBodys = '';
+                                for (var i = 0, l = axisData.length; i < l; i++) {
+                                    for (var j = 0; j < series.length; j++) {
+                                        if (typeof(series[j].data[i]) == 'object') {
+                                            tdBodys += '<td>' + series[j].data[i].value + '</td>';
+                                        } else {
+                                            tdBodys += '<td>' + series[j].data[i] + '</td>';
+                                        }
+                                    }
+                                    table += '<tr><td style="padding: 0 10px">' + axisData[i] + '</td>' + tdBodys + '</tr>';
+                                    tdBodys = '';
+                                }
+                                table += '</tbody></table>';
+                                return table;
+                            }
+                        },
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data[i].myTest_xAxis
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    name: '成绩',
+                    data: data[i].myTest_yAxis,
+                    type: 'line'
+                }]
+            };
+            myTestChart.setOption(options_2);
+        }
+
+
+    </script>
+{% endblock %}

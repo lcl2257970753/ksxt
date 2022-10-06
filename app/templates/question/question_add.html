@@ -1,0 +1,160 @@
+{% extends 'common/base.html' %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 题库管理</a></li>
+                <li class="active">添加试题</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">添加试题</h3>
+                    </div>
+                    <form role="form" method="post" class="form-horizontal">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="input_type" class="control-label col-xs-4">
+                                    {{ form.type.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.type }}
+                                </div>
+                                {% for err in form.type.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_context" class="control-label col-xs-4">
+                                    {{ form.context.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.context }}
+                                </div>
+                                {% for err in form.context.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_op_a" class="control-label col-xs-4">
+                                    {{ form.op_a.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.op_a }}
+                                </div>
+                                {% for err in form.op_a.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_op_b" class="control-label col-xs-4">
+                                    {{ form.op_b.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.op_b }}
+                                </div>
+                                {% for err in form.op_b.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_op_c" class="control-label col-xs-4">
+                                    {{ form.op_c.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.op_c }}
+                                </div>
+                                {% for err in form.op_c.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_op_d" class="control-label col-xs-4">
+                                    {{ form.op_d.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.op_d }}
+                                </div>
+                                {% for err in form.op_d.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_answer" class="control-label col-xs-4">
+                                    {{ form.answer.label }}</label>
+                                <div class="col-xs-4">
+                                    {{ form.answer }}
+                                </div>
+                                {% for err in form.answer.errors %}
+                                    <div class="col-md-12">
+                                        <p style="color: red">{{ err }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label for="input_state" class="col-xs-4 control-label">
+                                    {{ form.state.label }}</label>
+                                <div class="radio col-md-8">
+                                    {{ form.state }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="input_is_public" class="col-xs-4 control-label">
+                                    {{ form.is_public.label }}</label>
+                                <div class="radio col-md-8">
+                                    {{ form.is_public }}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="box-footer" style="text-align: center">
+                            {{ form.csrf_token }}
+                            {{ form.submit }}
+                            <a href="{{ url_for("main.question_add_html",type=0) }}" class="float-right btn">返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            $("#state").addClass("list-inline");
+            $("#state li").css("margin", "0 40px");
+            $("#is_public").addClass("list-inline");
+            $("#is_public li").css("margin", "0 40px");
+            diff();
+        })
+
+        $("#type").change(function () {
+            diff();
+        })
+
+        function diff() {
+            type = $("#type").val();
+            if (type != 1 && type != 2) {
+                $("#op_a").parent().parent().hide()
+                $("#op_b").parent().parent().hide()
+                $("#op_c").parent().parent().hide()
+                $("#op_d").parent().parent().hide()
+            } else {
+                $("#op_a").parent().parent().show()
+                $("#op_b").parent().parent().show()
+                $("#op_c").parent().parent().show()
+                $("#op_d").parent().parent().show()
+            }
+        }
+    </script>
+{% endblock %}

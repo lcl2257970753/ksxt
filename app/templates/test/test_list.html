@@ -1,0 +1,83 @@
+{% extends 'common/base.html' %}
+{% import 'common/page.html' as pg %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 题库管理</a></li>
+                <li class="active">试题列表</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">试题列表</h3>
+                        <div class="box-tools">
+                            <div class="float-right" style="margin-right:5px;width: 200px">
+                                <form action="" method="GET">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="keyword"
+                                               placeholder="请试卷名称" value="{{ keyword }}">
+                                        <span class="input-group-btn">
+                                             <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>编号</th>
+                                <th>试卷名称</th>
+                                <th>题目数量</th>
+                                <th>试卷分数</th>
+                                <th>是否可用</th>
+                                <th>操作事项</th>
+                            </tr>
+                            {% for v in page_data.items %}
+                                <tr>
+                                    <td>{{ v.id }}</td>
+                                    <td>{{ v.test_name }}</td>
+                                    <td>{{ v.count }}</td>
+                                    <td>{{ v.score }}</td>
+                                    {% if v.state == 1 %}
+                                        <td>是</td>
+                                    {% else %}
+                                        <td>否</td>
+                                    {% endif %}
+                                    <td>
+                                        {% if  v.user_id == session['user_id'] %}
+                                            <a href="{{ url_for('main.test_edit_html', id=v.id ) }}"
+                                               class="label label-success">编辑</a>&nbsp;
+                                            <a href="{{ url_for('main.test_del', id=v.id ) }}"
+                                               class="label label-danger" onclick="del({{ v.test_name }})">删除</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box-footer clearfix">
+                        {{ pg.page(page_data,'main.test_list',keyword) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--内容-->
+{% endblock %}
+
+{% block js %}
+    <script>
+        function del(name) {
+            return confirm("确定删除[" + name + "]?");
+        }
+    </script>
+{% endblock %}

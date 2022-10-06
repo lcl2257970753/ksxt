@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% set logo_path = g.logo %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>百战团队.考试系统</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='img/logo.png') }}" />
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='font-awesome/css/font-awesome.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='css/plugins/AdminLTE.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='css/plugins/skins/_all-skins.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='css/plugins/toastr.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='css/demo.css') }}" rel="stylesheet" />
+    {% block css %}
+    {% endblock %}
+</head>
+
+<body class="hold-transition skin-blue-light sidebar-mini">
+
+{% block content %} {% endblock %}
+{#<script src="{{ url_for('static',filename='js/popper.min.js') }}"></script>#}
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="{{ url_for('static',filename='js/jquery-3.1.1.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/plugins/jquery.slimscroll.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/plugins/toastr.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/plugins/app.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/plugins/layer/layer.js') }}"></script>
+{% block js %}{% endblock %}
+
+</body>
+</html>

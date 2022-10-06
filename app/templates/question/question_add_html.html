@@ -1,0 +1,243 @@
+{% extends 'common/base.html' %}
+{% block css %}
+    <style>
+        .card {
+            margin: 20px;
+            width: 200px;
+            height: 100px;
+            line-height: 85px;
+            font-size: 20px;
+            border: 2px solid #0e9aef;
+            color: black;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
+            float: left;
+        }
+
+        .card:hover {
+            text-align: center;
+            line-height: 85px;
+            background: #0e9aef;
+            color: white;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
+        }
+
+        .tooltip-inner {
+            font-size: 16px;
+            background-color: #0e8ee7;
+        }
+
+        .tooltip {
+            border-radius: 20px;
+        }
+
+        .tooltip .tooltip-arrow {
+            border-top-color: #0e8ee7;
+
+        }
+
+        #imgSpan {
+            border: 1px solid #0e9aef;
+            border-radius: 20px;
+            width: 350px;
+            height: 450px;
+        }
+
+        #imgSpan2 {
+            border: 1px solid #0e9aef;
+            border-radius: 20px;
+            width: 270px;
+            height: 300px;
+        }
+
+        #file {
+            opacity: 0;
+            width: 350px;
+            height: 450px;
+        }
+
+        #excel {
+            opacity: 0;
+            width: 270px;
+            height: 270px;
+        }
+
+        #preimg {
+            padding: 10px;
+            width: 350px;
+            max-height: 450px;
+            position: absolute;
+        }
+
+        #preimg2 {
+            padding: 10px;
+            width: 270px;
+            position: absolute;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 题库管理</a></li>
+                <li class="active">添加试题</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent" style="width: 100%;height: 100%;">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">添加试题</h3>
+                        <div class="box-tools">
+                            <a class="btn btn-primary float-right"
+                               href="{{ url_for('static',filename='uploads/百战团队试题模版.xls') }}"
+                               style="padding: 4px 6px">下载Excel模板</a>
+                        </div>
+                    </div>
+                    <div style="vertical-align: middle;text-align: center;">
+                        <a class="card btn" type="button" data-toggle="tooltip" data-placement="bottom" title="原始方式输入题目"
+                           href="{{ url_for("main.question_add") }}">手动添加</a>
+                        <a class="card btn" type="button" title="上传Excel文件，完成批量题目录入"
+                           data-toggle="tooltip" data-placement="bottom" onclick="openModal('uploadExcel')">Excel导入
+                        </a>
+                        <a class="card btn" type="button" data-toggle="tooltip" data-placement="bottom"
+                           title="通过编辑，粘贴文本的方式批量输入题目，自动识别题目，完成录入"
+                           href="{{ url_for("main.question_add_html") }}?type=1">批量导入 </a>
+                        <a class="card btn" type="button" title="通过上传图片文字识别，自动识别题目，完成录入"
+                           data-toggle="tooltip" data-placement="bottom" onclick="openModal('uploadPic')">图片导入
+                        </a>
+                    </div>
+                    <div class="modal bs-example-modal-sm" id="uploadPic" tabindex="-1" role="dialog"
+                         data-backdrop="false" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <form method="POST" action="{{ url_for('main.uploadPic') }}"
+                                      enctype='multipart/form-data' id="picform">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
+                                        <h4 class="float-left">上传图片</h4>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <div class="input-group input-group-sm">
+                                            <div id="imgSpan">
+                                                <img src="{{ url_for('static',filename='img/add.png') }}"
+                                                     id="preimg"
+                                                     class="center-block"/>
+                                                <input id="file" name="file" required="" type="file"
+                                                       accept="image/*">
+                                            </div>
+                                        </div>
+                                        <div style="text-align: center;margin:10px 0 0 0;">
+                                            <button class="btn btn-primary" type="submit">确定</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal bs-example-modal-sm" id="uploadExcel" tabindex="-1" role="dialog"
+                         data-backdrop="false" aria-hidden="true">
+                        <div class="modal-dialog modal-sm" role="document">
+                            <div class="modal-content">
+                                <form method="POST" enctype='multipart/form-data' id="fileForm" onsubmit="return false">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
+                                        <h4 class="float-left">上传Excel文件</h4>
+                                    </div>
+                                    <div class="modal-body m-auto">
+                                        <div class="input-group input-group-sm" style="text-align: center">
+                                            <div id="imgSpan2">
+                                                <img src="{{ url_for('static',filename='img/add.png') }}"
+                                                     id="preimg2"
+                                                     class="center-block"/>
+                                                <input id="excel" name="file" required="" type="file"
+                                                       accept="application/vnd.ms-excel">
+                                                <p id="filename"></p>
+                                            </div>
+                                        </div>
+                                        <div style="text-align: center;margin:10px 0 0 0;">
+                                            <button class="btn btn-primary" id="filepost" onclick="uploadExcel()">确定
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        function openModal(name) {
+            $("#" + name).modal();
+        }
+
+        $('#file').change(function () {
+            var file = this.files[0];
+            var fr = new FileReader();
+            fr.readAsDataURL(file);
+            fr.onload = function () {
+                $('#preimg').attr('src', fr.result);
+            }
+        })
+
+        $('#excel').change(function () {
+            var file = this.files[0];
+            $('#preimg2').attr('src', "{{url_for('static',filename='uploads/excel_logo.jpg')}}");
+            $("#filename").html(file.name);
+        })
+
+
+        function uploadExcel() {
+            var file = new FormData($('#fileForm')[0]);
+            var tip = layer.load(0, {shade: false});
+            $.ajax({
+                url: "{{ url_for('main.uploadExcel') }}",
+                type: 'POST',
+                data: file,
+                contentType: false,
+                async: false,
+                processData: false,
+                success: function (res) {
+                    layer.close(tip);
+                    layer.open({
+                        title: '成功',
+                        content: "本次导入了" + res + "道题",
+                        icon: 1,
+                        end: function () {
+                            location.href = "{{ url_for('main.question_list')}}";
+                        }
+                    });
+                },
+            });
+        }
+
+        //重置模态框
+        $('#uploadPic').on('hidden.bs.modal', function (e) {
+            $("#preimg").attr('src', "{{ url_for('static',filename='img/add.png') }}")
+            $("#file").val("")
+        })
+
+        $('#uploadExcel').on('hidden.bs.modal', function (e) {
+            $("#preimg2").attr('src', "{{ url_for('static',filename='img/add.png') }}")
+            $("#excel").val("")
+            $("#filename").html("")
+        })
+    </script>
+{% endblock %}

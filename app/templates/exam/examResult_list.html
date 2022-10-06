@@ -1,0 +1,79 @@
+{% extends 'common/base.html' %}
+{% import 'common/page.html' as pg %}
+{% block content %}
+    <section class="content-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 考试管理</a></li>
+                <li class="active">考试结果列表</li>
+            </ol>
+        </div>
+    </section>
+    <section class="content" id="showcontent">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">考试结果列表</h3>
+                        <div class="box-tools">
+                            <div class="float-right" style="margin-right:5px;width: 200px">
+                                <form action="" method="GET">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="keyword"
+                                               placeholder="请输入试卷名称" value="{{ keyword }}">
+                                        <span class="input-group-btn">
+                                             <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>编号</th>
+                                <th>试卷名称</th>
+                                <th>提交时间</th>
+                                <th>题目数量</th>
+                                <th>得分</th>
+                                <th>操作事项</th>
+                            </tr>
+                            {% for v in page_data.items %}
+                                <tr>
+                                    <td>{{ v.unique_id }}</td>
+                                    <td>{{ v.test.test_name }}</td>
+                                    <td class="times" data-time="{{ v.unique_id }}"></td>
+                                    <td>{{ v.count }}</td>
+                                    <td>{{ v.score }}</td>
+                                    <td>
+                                        <a id="star" href="{{ url_for('main.examResult') }}?unique_id={{ v.unique_id }}"
+                                           class="label label-success">查看详情</a>&nbsp;
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box-footer clearfix">
+                        {{ pg.page(page_data,'main.test_list',keyword) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            $('.times').each(function () {
+                var self = $(this);
+                var date = new Date(self.data('time') + 8 * 3600 * 1000); // 增加8小时
+                var time = date.toJSON().substr(0, 19).replace('T', ' ');
+                self.html(time)
+            })
+        })
+    </script>
+{% endblock %}

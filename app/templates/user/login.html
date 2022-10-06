@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% set logo_path = g.logo %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百战团队在线题库</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='img/logo.png') }}">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/login.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static',filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script language="JavaScript">
+        $(function () {
+            if (window != top)
+                top.location.href = location.href;
+        })
+    </script>
+
+</head>
+
+<body class="gray-bg">
+
+<div class="middle-box text-center loginscreen animated">
+    <img src="{{ url_for('static',filename='img/logo.png') }}" width="100px">
+    <h3>欢迎登录<span style="color: #008b8b">百战团队</span>考试系统</h3>
+    <p>百战团队.考试题库的网站</p>
+</div>
+<div class="container">
+    <div id="login" class="login-container">
+        <form role="form" method="POST" action="">
+            <div class="form-control">
+                {{ form.account }}
+            </div>
+            <div class="form-control">
+                {{ form.pwd }}
+            </div>
+            {% for err in form.account.errors %}
+                <div class="form-control">
+                    <ul class="errors">
+                        <li>{{ err }}</li>
+                    </ul>
+                </div>
+            {% endfor %}
+            {% for err in form.pwd.errors %}
+                <div class="form-control">
+                    <ul class="errors">
+                        <li>{{ err }}</li>
+                    </ul>
+                </div>
+            {% endfor %}
+            {% for msg in get_flashed_messages(category_filter=["err"]) %}
+                <div id="tip">
+                    <ul class="errors">
+                        <li>{{ msg }}</li>
+                    </ul>
+                </div>
+            {% endfor %}
+            <div class="form-control">
+                {{ form.csrf_token }}
+                {{ form.submit }}
+            </div>
+        </form>
+        <a href="#">
+            <small>忘记密码?</small>
+        </a>
+        <!--p class="text-center"--><!--还没有账号--><!--?--><!--/p-->
+        <!--a class="btn btn-lg btn-white btn-block" href="\register\"--><!--创建一个帐户--><!--/a-->
+        <!-- -->
+    </div>
+</div>
+<p class="m-t text-center">Copyright © 2019 - 2020 Agoni版权所有 </p>
+</body>
+</html>

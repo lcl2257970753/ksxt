@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线试题登录</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='img/logo.png') }}">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/login.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static',filename='js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.js') }}"></script>
+    <script language="JavaScript">
+        $(function () {
+            if (window != top)
+                top.location.href = location.href;
+        })
+    </script>
+</head>
+
+<body class="gray-bg">
+
+<div class="middle-box text-center loginscreen  animated">
+    <h4><span style="color:#008b8b">百战团队</span>注册平台</h4>
+    <img src="{{ url_for('static',filename='img/logo.png') }}" width="100px">
+</div>
+<div class="container">
+    <div id="login" class="login-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash">
+                    {% for message in messages %}
+                        <div class="alert alert-success" style="text-align: center">
+                            <button aria-hidden="true" data-dismiss="alert" class="close"
+                                    type="button">×
+                            </button>
+                            <strong>{{ message }},去<a href="{{ url_for("main.login") }}">登录</a>吧!</strong>
+                        </div>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form role="form" method="POST" action="">
+            <div class="form-control">
+                {{ form.username }}
+                {% for err in form.username.errors %}
+                    <div class="form-control" style="background:#f3f3f4">
+                        <p style="color: red">{{ err }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-control">
+                {{ form.email }}
+                {% for err in form.email.errors %}
+                    <div class="form-control" style="background:#f3f3f4">
+                        <p style="color: red">{{ err }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-control">
+                {{ form.pwd }}
+                {% for err in form.pwd.errors %}
+                    <div class="form-control" style="background:#f3f3f4">
+                        <p style="color: red">{{ err }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-control">
+                {{ form.repwd }}
+                {% for err in form.repwd.errors %}
+                    <div class="form-control" style="background:#f3f3f4">
+                        <p style="color: red">{{ err }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-control">
+                {{ form.csrf_token }}
+                {{ form.submit }}
+            </div>
+        </form>
+        <div>
+            <p class="change-form">已有账号，直接去 <a href="\login\">登录</a></p>
+        </div>
+        <p class="m-t text-center">Copyright © 2019 - 2022 百战团队 </p>
+    </div>
+</div>
+</body>
+</html>
