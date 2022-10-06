@@ -8,7 +8,7 @@ import os, uuid, json, xlrd
 from datetime import datetime
 from app import db
 from . import main
-from aip import AipOcr,AipNlp
+from aip import AipOcr, AipNlp
 from flask import render_template, redirect, url_for, flash, session, request, current_app, jsonify
 from app.main.forms import LoginForm, RegisterForm, RoleForm, MenuForm, QtForm, QuestionForm, UserForm, TestForm, \
     ExamForm, PwdForm
@@ -58,7 +58,7 @@ def login():
         # 创建数据
         loginlog = Loginlog(
             user_id=user.id,
-            ip=request.remote_addr,
+            ip=request.remote_addr if request.remote_addr != "127.0.0.0" else request.headers['X-Real-Ip'],
         )
         db.session.add(loginlog)  # 添加数据
         db.session.commit()  # 提交数据
@@ -141,12 +141,14 @@ def get_file_content(filePath):
 def menu_tree(rode_id):
     menusjson = []
     if (rode_id):
-        mList_parent = Menu_role.query.join(Sysmenu).filter(Menu_role.rid == rode_id,Sysmenu.state==1, Sysmenu.parent_id == 0).order_by(
+        mList_parent = Menu_role.query.join(Sysmenu).filter(Menu_role.rid == rode_id, Sysmenu.state == 1,
+                                                            Sysmenu.parent_id == 0).order_by(
             Sysmenu.rank).all()
         for item in mList_parent:
             menus = queryToDict(item.Menu)
             mList_child = Menu_role.query.join(Sysmenu).filter(Menu_role.rid == rode_id,
-                                                               Sysmenu.parent_id == item.mid,Sysmenu.state==1,).order_by(
+                                                               Sysmenu.parent_id == item.mid,
+                                                               Sysmenu.state == 1, ).order_by(
                 Sysmenu.rank).all()
             menus_c = []
             for i in mList_child:
@@ -155,10 +157,11 @@ def menu_tree(rode_id):
             menus["children"] = menus_c
             menusjson.append(menus)
     else:
-        mList_parent = Sysmenu.query.filter(Sysmenu.state==1,Sysmenu.parent_id == 0).order_by(Sysmenu.rank).all()
+        mList_parent = Sysmenu.query.filter(Sysmenu.state == 1, Sysmenu.parent_id == 0).order_by(Sysmenu.rank).all()
         for item in mList_parent:
             menus = queryToDict(item)
-            mList_child = Sysmenu.query.filter(Sysmenu.state==1,Sysmenu.parent_id == item.id).order_by(Sysmenu.rank).all()
+            mList_child = Sysmenu.query.filter(Sysmenu.state == 1, Sysmenu.parent_id == item.id).order_by(
+                Sysmenu.rank).all()
             menus_c = []
             for i in mList_child:
                 child = queryToDict(i)
@@ -172,7 +175,7 @@ def menu_tree(rode_id):
 def addOplog(reason):
     oplog = Oplog(
         user_id=session["user_id"],
-        ip=request.remote_addr,
+        ip=request.remote_addr if request.remote_addr else request.headers['X-Real-Ip'],
         reason=reason
     )
     db.session.add(oplog)
@@ -187,20 +190,21 @@ def loginlog_list(page=None):
     keyword = request.args.get('keyword', '', type=str)
     if keyword:
         # 根据名称模糊查询
-        if session['role_id']==1:
+        if session['role_id'] == 1:
             filters = User.username.like("%" + keyword + "%")
-        else :
-            filters = and_(Loginlog.user_id==session['user_id'],User.username.like("%" + keyword + "%"))
+        else:
+            filters = and_(Loginlog.user_id == session['user_id'], User.username.like("%" + keyword + "%"))
         page_data = Loginlog.query.filter(
             filters
         ).order_by(
             Loginlog.addtime.desc()
         ).paginate(page=page, per_page=5)
     else:
-        if session['role_id']==1:
+        if session['role_id'] == 1:
             page_data = Loginlog.query.order_by(Loginlog.addtime.desc()).paginate(page=page, per_page=5)
-        else :
-            page_data = Loginlog.query.filter(Loginlog.user_id ==session['user_id']).order_by( Loginlog.addtime.desc()).paginate(page=page, per_page=5)
+        else:
+            page_data = Loginlog.query.filter(Loginlog.user_id == session['user_id']).order_by(
+                Loginlog.addtime.desc()).paginate(page=page, per_page=5)
     return render_template("log/loginlog_list.html", page_data=page_data, keyword=keyword)
 
 
@@ -215,17 +219,18 @@ def oplog_list():
         if session['role_id'] == 1:
             filters = and_(User.username.like("%" + keyword + "%"))
         else:
-            filters = and_(Oplog.user_id==session['user_id'], User.username.like("%" + keyword + "%"))
+            filters = and_(Oplog.user_id == session['user_id'], User.username.like("%" + keyword + "%"))
         page_data = Oplog.query.filter(
             filters
         ).order_by(
             Oplog.addtime.desc()
         ).paginate(page=page, per_page=5)
     else:
-        if session['role_id']==1:
+        if session['role_id'] == 1:
             page_data = Oplog.query.order_by(Oplog.addtime.desc()).paginate(page=page, per_page=5)
-        else :
-            page_data = Oplog.query.filter( User.id == session['user_id']).order_by(Oplog.addtime.desc()).paginate(page=page, per_page=5)
+        else:
+            page_data = Oplog.query.filter(User.id == session['user_id']).order_by(Oplog.addtime.desc()).paginate(
+                page=page, per_page=5)
     return render_template("log/oplog_list.html", page_data=page_data, keyword=keyword)
 
 
@@ -493,7 +498,7 @@ def role_del(id=None):
 def user_list():
     page = request.args.get('page', 1, type=int)  # 获取page参数值
     keyword = request.args.get('keyword', '', type=str)
-    if session['role_id'] !=3 :
+    if session['role_id'] != 3:
         if keyword:
             # 根据姓名或者邮箱查询
             filters = or_(User.username == keyword, User.email == keyword, User.phone == keyword)
@@ -505,16 +510,26 @@ def user_list():
                 User.addtime.desc()
             ).paginate(page=page, per_page=10)
     else:
-        page_data = User.query.filter(User.id==session["user_id"]).order_by(
+        page_data = User.query.filter(User.id == session["user_id"]).order_by(
             User.addtime.desc()
         ).paginate(page=page, per_page=10)
     return render_template("user/user_list.html", page_data=page_data, keyword=keyword)  # 渲染模板
 
 
 # 用户编辑
-@main.route("/user_edit/<int:id>", methods=["GET", "POST"])
+@main.route("/user_edit", methods=["POST"])
 @user_login
 def user_edit(id=None):
+    """
+    todo 修改
+    :param id:
+    :return:
+    """
+    # todo 获取请求参数
+    # 是否存在此人
+    # 修改前段穿过过来的数据
+    # return
+
     form = UserForm()
     form.submit.label.text = "修改"
     form.role_id.choices = [(v.id, v.rolename) for v in Role.query.all()]
@@ -597,10 +612,14 @@ def qt_list():
     keyword = request.args.get('keyword', '', type=str)
     user_id = session["user_id"]
     if keyword:
-        filters = and_(or_(Question_type.is_public==1,and_(Question_type.is_public==0,Question_type.user_id == user_id)),Question_type.name.like("%" + keyword + "%"))
+        filters = and_(
+            or_(Question_type.is_public == 1, and_(Question_type.is_public == 0, Question_type.user_id == user_id)),
+            Question_type.name.like("%" + keyword + "%"))
         page_data = Question_type.query.filter(filters).paginate(page=page, per_page=10)
     else:
-        page_data = Question_type.query.filter(or_(Question_type.is_public==1,and_(Question_type.is_public==0,Question_type.user_id == user_id))).paginate(page=page, per_page=10)
+        page_data = Question_type.query.filter(or_(Question_type.is_public == 1, and_(Question_type.is_public == 0,
+                                                                                      Question_type.user_id == user_id))).paginate(
+            page=page, per_page=10)
     return render_template("question/qt_list.html", page_data=page_data, keyword=keyword)
 
 
@@ -673,14 +692,16 @@ def question_list():
     keyword = request.args.get('keyword', '', type=str)
     user_id = session['user_id']
     if keyword:
-        filters = and_(or_(and_(Question.state == 1,Question.is_public==1),
-                           and_(Question.user_id == user_id,or_(Question.is_public == 0,Question.state==0))),
+        filters = and_(or_(and_(Question.state == 1, Question.is_public == 1),
+                           and_(Question.user_id == user_id, or_(Question.is_public == 0, Question.state == 0))),
                        Question.context.like("%" + keyword + "%"))
-        page_data = Question.query.filter(filters).order_by((Question.user_id==user_id).desc()).paginate(page=page, per_page=10)
+        page_data = Question.query.filter(filters).order_by((Question.user_id == user_id).desc()).paginate(page=page,
+                                                                                                           per_page=10)
     else:
         filters = or_(and_(Question.state == 1, Question.is_public == 1),
-                           and_(Question.user_id == user_id, or_(Question.is_public == 0, Question.state == 0)))
-        page_data = Question.query.filter(filters).order_by((Question.user_id==user_id).desc()).paginate(page=page, per_page=10)
+                      and_(Question.user_id == user_id, or_(Question.is_public == 0, Question.state == 0)))
+        page_data = Question.query.filter(filters).order_by((Question.user_id == user_id).desc()).paginate(page=page,
+                                                                                                           per_page=10)
     return render_template("question/question_list.html", page_data=page_data, keyword=keyword)
 
 
@@ -922,8 +943,8 @@ def test_list():
     keyword = request.args.get('keyword', '', type=str)
     user_id = session['user_id']
     if keyword:
-        filters = and_(or_(and_(Test.state == 1,Test.is_public==1),
-                           and_(Test.user_id == user_id,or_(Test.is_public == 0,Test.state==0))),
+        filters = and_(or_(and_(Test.state == 1, Test.is_public == 1),
+                           and_(Test.user_id == user_id, or_(Test.is_public == 0, Test.state == 0))),
                        Test.test_name.like("%" + keyword + "%"))
         page_data = Test.query.filter(filters).paginate(page=page, per_page=10)
     else:
@@ -1098,7 +1119,7 @@ def exam_list():
     else:
         page_data = Examination.query.join(Test).filter(Examination.test_id == Test.id, Examination.is_join == 1,
                                                         Examination.to_user == user_id).paginate(page=page, per_page=10)
-    return render_template("exam/exam_list.html", page_data=page_data, keyword=keyword,nowTime = datetime.now())
+    return render_template("exam/exam_list.html", page_data=page_data, keyword=keyword, nowTime=datetime.now())
 
 
 # 创建考试
@@ -1112,6 +1133,7 @@ def exam_add():
                                                                    Test.is_public == 1)).all()]
     members = Friends.query.with_entities(User.id, User.username).filter(Friends.friend_id == User.id,
                                                                          Friends.self_id == user_id).all()
+
     if form.validate_on_submit():
         data = form.data
         test = Test.query.get_or_404(data["test_id"])
@@ -1145,7 +1167,8 @@ def exam_add():
             message = Message(
                 to_user=member,
                 from_user=session["user_id"],
-                context=session['user'] + '邀您参加<a class="err" href="/join_exam/' + str(exam.id) + '">' + test.test_name + '</a>，点击考试参加'
+                context=session['user'] + '邀您参加<a class="err" href="/join_exam/' + str(
+                    exam.id) + '">' + test.test_name + '</a>，点击考试参加'
             )
             messages.append(message)
         db.session.add_all(messages)
@@ -1171,7 +1194,7 @@ def join_exam(id=None):
 @main.route("/paper/", methods=["GET", "POST"])
 @user_login
 def paper():
-    id=request.values.get("id",type=int)
+    id = request.values.get("id", type=int)
     exam = Examination.query.get_or_404(id)
     questions = Test_detail.query.filter(Test_detail.test_id == exam.test_id).all()
     return render_template("exam/paper.html", exam=exam, questions=questions)
@@ -1194,24 +1217,29 @@ def postanswer():
             unique_id=data["unique_id"],
             answer=question.answer
         )
-        #语义匹对
-        #语义匹对小于0.9 且两者答案不一致
-        if data['type']==1 or data['type'] == 2:
+        # 语义匹对
+        # 语义匹对小于0.9 且两者答案不一致
+        if data['type'] == 1 or data['type'] == 2:
             if detail.answer_post == question.answer:
                 detail.score = detail.score
                 detail.is_true = 1
             else:
                 detail.score = 0
                 detail.is_true = 0
-        else :
+        elif data['type'] == 3 or data['type'] == 4 or data['type'] == 5:
             client = AipNlp("19710337", "BpykpHp1GxO5BUF1sMTd5tGp", "ecoHICOhB5pSRGIQupFwoUG5UcTNOMiD")  # 百度AI
             result = client.simnet(detail.answer_post, question.answer).get('score')
-            if result>0.9:
+            result = result if result is not None else 0
+            if result > 0.9:
                 detail.score = detail.score
                 detail.is_true = 1
             else:
                 detail.score = 0
                 detail.is_true = 0
+        else:
+            # todo 编程题
+            detail.score = 0
+            detail.is_true = 0
         exams.append(detail)
     db.session.add_all(exams)
     db.session.commit()
@@ -1256,7 +1284,8 @@ def examResult_list():
         page_data = ExaminationResult.query.filter(filters).order_by(ExaminationResult.unique_id.desc()).paginate(
             page=page, per_page=10)
     else:
-        page_data = ExaminationResult.query.filter(ExaminationResult.to_user == user_id).order_by(ExaminationResult.unique_id.desc()).paginate(
+        page_data = ExaminationResult.query.filter(ExaminationResult.to_user == user_id).order_by(
+            ExaminationResult.unique_id.desc()).paginate(
             page=page, per_page=10)
     return render_template("exam/examResult_list.html", page_data=page_data, keyword=keyword)
 
@@ -1266,9 +1295,9 @@ def examResult_list():
 @user_login
 def examResult():
     unique_id = request.values.get('unique_id', type=str)
-    exam = ExaminationResult.query.filter(ExaminationResult.unique_id==unique_id).first();
+    exam = ExaminationResult.query.filter(ExaminationResult.unique_id == unique_id).first();
     examList = ExaminationDetail.query.filter(ExaminationDetail.unique_id == unique_id).all()
-    return render_template("exam/examResult.html", exam = exam,examList=examList)
+    return render_template("exam/examResult.html", exam=exam, examList=examList)
 
 
 # 好友列表
@@ -1279,9 +1308,15 @@ def friend_list():
     keyword = request.args.get('keyword', '', type=str)
     user_id = session["user_id"]
     if keyword:
-        page_data = Friends.query.filter(Friends.self_id == user_id,
-                                         Friends.friend.username.like("%" + keyword + "%")).paginate(page=page,
-                                                                                                     per_page=10)
+        if "@" in keyword:
+            page_data = Friends.query.filter(Friends.self_id == user_id,
+                                             Friends.friend.has(User.email.like("%" + keyword + "%"))
+                                             ).paginate(page=page, per_page=10)
+        else:
+            page_data = Friends.query.filter(Friends.self_id == user_id,
+                                             Friends.friend.has(User.username.like("%" + keyword + "%"))
+                                             ).paginate(page=page, per_page=10)
+
     else:
         page_data = Friends.query.filter(Friends.self_id == user_id).paginate(page=page, per_page=10)
     return render_template("user/friend_list.html", page_data=page_data, keyword=keyword)
@@ -1319,7 +1354,7 @@ def findUser():
 @user_login
 def friend_add():
     friend_id = request.values.get("id", type=int)
-    friend = Friends.query.filter(Friends.self_id==session["user_id"],Friends.friend_id==friend_id).first();
+    friend = Friends.query.filter(Friends.self_id == session["user_id"], Friends.friend_id == friend_id).first();
     if friend:
         return 'err'
     friends = []
@@ -1349,9 +1384,11 @@ def message():
                    or_(User.username.like("%" + keyword + "%"),
                        Message.context.like("%" + keyword + "%")))
     if keyword:
-        page_data = Message.query.filter(filters).order_by(Message.is_read,Message.addtime.desc()).paginate(page=page, per_page=10)
+        page_data = Message.query.filter(filters).order_by(Message.is_read, Message.addtime.desc()).paginate(page=page,
+                                                                                                             per_page=10)
     else:
-        page_data = Message.query.filter(Message.to_user == user_id).order_by(Message.is_read,Message.addtime.desc()).paginate(
+        page_data = Message.query.filter(Message.to_user == user_id).order_by(Message.is_read,
+                                                                              Message.addtime.desc()).paginate(
             page=page, per_page=10)
     return render_template("user/message_list.html", page_data=page_data, keyword=keyword)
 
@@ -1423,6 +1460,7 @@ def statement():
         result['exams_percent'] = '{:.2%}'.format(float(len(exams_not_null)) / float(len(exams)))
     except:
         result['exams_percent'] = 0
+        return render_template('main/none.html')
     result['exams_self'] = len(exams_self)
     result['score_max'] = exams_result[0].max
     result['score_min'] = exams_result[0].min

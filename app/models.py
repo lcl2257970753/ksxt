@@ -18,12 +18,12 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))  # 角色
     phone = db.Column(db.String(11), unique=True)  # 手机号
     info = db.Column(db.Text)  # 个性简介
-    face = db.Column(db.String(255),default='default.jpg')  # 头像
+    face = db.Column(db.String(255), default='default.jpg')  # 头像
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 注册时间
     # loginlogs = db.relationship('Loginlog', backref='user')  # 登录日志外键关系关联
     # oplogs = db.relationship('Oplog', backref='user')  # 操作日志外键关系关联
-    question = db.relationship('Question',backref='user')
-    role = db.relationship('Role',backref='user')
+    question = db.relationship('Question', backref='user')
+    role = db.relationship('Role', backref='user')
 
     def __repr__(self):
         return '<User %r>' % self.name
@@ -46,7 +46,8 @@ class Loginlog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 所属管理员
     ip = db.Column(db.String(100))  # 登录IP
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 登录时间
-    user =db.relationship("User",backref='loginlog')
+    user = db.relationship("User", backref='loginlog')
+
     def __repr__(self):
         return "<Loginlog %r>" % self.id
 
@@ -61,6 +62,7 @@ class Oplog(db.Model):
     reason = db.Column(db.String(600))  # 操作原因
     user = db.relationship("User", backref='oplog')
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 登录时间
+
     def __repr__(self):
         return "<Oplog %r>" % self.id
 
@@ -89,7 +91,7 @@ class Sysmenu(db.Model):
     path = db.Column(db.String(100))  # 路由请求
     parent_id = db.Column(db.Integer, default=0)  # 父级目录
     icon = db.Column(db.String(100))  # 系统图标
-    rank = db.Column(db.Integer,default=0) #排序
+    rank = db.Column(db.Integer, default=0)  # 排序
     menus = db.relationship('Menu_role', backref='menu')  # 关联角色目录表
 
     def __repr__(self):
@@ -126,7 +128,8 @@ class Question_type(db.Model):
     desc = db.Column(db.String(100))  # 描述
     is_public = db.Column(db.Integer, default=1)  # 是否公开
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 所属用户
-    type = db.relationship("Question",backref="question_type")
+    type = db.relationship("Question", backref="question_type")
+
     def __repr__(self):
         return "<Question_type %r>" % self.id
 
@@ -148,6 +151,7 @@ class Question(db.Model):
     type = db.Column(db.Integer, db.ForeignKey("question_type.id"))  # 试题类型
     analysis = db.Column(db.String(1024))  # 解析
     difficult = db.Column(db.String(10))  # 难度
+
     def __repr__(self):
         return "<Question %r>" % self.id
 
@@ -158,13 +162,14 @@ class Test(db.Model):
     __table_args__ = {"useexisting": True}
     id = db.Column(db.Integer, primary_key=True)  # 编号
     test_name = db.Column(db.String(100))  # 试卷名称
-    count = db.Column(db.Integer)  #试卷题目数
+    count = db.Column(db.Integer)  # 试卷题目数
     state = db.Column(db.Integer, default=1)  # 试卷状态
     is_public = db.Column(db.Integer, default=1)  # 是否公开
     score = db.Column(db.Integer)  # 分数
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 所属用户
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 创建时间
     exam = db.relationship("Examination", backref="test")
+
     def __repr__(self):
         return "<test %r>" % self.id
 
@@ -176,12 +181,12 @@ class Test_detail(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # 编号
     test_id = db.Column(db.Integer, db.ForeignKey('test.id'))  # 所属试卷
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))  # 所属试卷
-    score = db.Column(db.Integer) #分数
+    score = db.Column(db.Integer)  # 分数
     test = db.relationship("Test", backref="test_detail")
     question = db.relationship("Question", backref="test_detail")
+
     def __repr__(self):
         return "<test_detail %r>" % self.id
-
 
 
 # 考试表
@@ -192,11 +197,12 @@ class Examination(db.Model):
     to_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 考生
     from_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 出卷人
     test_id = db.Column(db.Integer, db.ForeignKey('test.id'))  # 所属试卷
-    time = db.Column(db.Integer) #考试时间
+    time = db.Column(db.Integer)  # 考试时间
     startTime = db.Column(db.DateTime, index=True)  # 开始时间
     endTime = db.Column(db.DateTime, index=True)  # 结束时间
     count = db.Column(db.Integer)  # 试卷题目数
-    is_join= db.Column(db.Integer,default=0) #是否参加考试，默认不参加
+    is_join = db.Column(db.Integer, default=0)  # 是否参加考试，默认不参加
+
     def __repr__(self):
         return "<Examination %r>" % self.id
 
@@ -210,50 +216,53 @@ class ExaminationResult(db.Model):
     to_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 考生
     from_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 出卷人
     test_name = db.Column(db.Integer, db.ForeignKey('test.id'))  # 所属试卷
-    time = db.Column(db.Integer) #考试时间
+    time = db.Column(db.Integer)  # 考试时间
     count = db.Column(db.Integer)  # 试卷题目数
     score = db.Column(db.Integer)  # 得分
     test = db.relationship("Test", backref="examination_result")
     user = db.relationship("User", foreign_keys=to_user)
+
     def __repr__(self):
         return "<ExaminationResult %r>" % self.id
 
 
-#考试结果详情
+# 考试结果详情
 class ExaminationDetail(db.Model):
     __tablename__ = "examinationdetail"
     __table_args__ = {"useexisting": True}
     id = db.Column(db.Integer, primary_key=True)  # 编号
-    unique_id = db.Column(db.String(20))#考试唯一标识
+    unique_id = db.Column(db.String(20))  # 考试唯一标识
     test_id = db.Column(db.Integer, db.ForeignKey('test.id'))  # 所属试卷
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))  # 所属问题
     answer = db.Column(db.String(1024))  # 错误答案
     answer_post = db.Column(db.String(1024))  # 正确答案
-    score = db.Column(db.Integer) #得分
+    score = db.Column(db.Integer)  # 得分
     is_true = db.Column(db.Integer, default=1)  # 是否做对，默认错误
     question = db.relationship("Question", backref="examinationdetail")
     test = db.relationship("Test", backref="examinationdetail")
+
     def __repr__(self):
         return "<Examinationdetail %r>" % self.id
 
-#消息
+
+# 消息
 class Message(db.Model):
     __tablename__ = "message"
     __table_args__ = {"useexisting": True}
     id = db.Column(db.Integer, primary_key=True)  # 编号
     to_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 发送者
     from_user = db.Column(db.Integer, db.ForeignKey('user.id'))  # 接收者
-    context = db.Column(db.String(1024)) #消息
-    is_read = db.Column(db.Integer,default=0) #是否阅读，默认未阅读
+    context = db.Column(db.String(1024))  # 消息
+    is_read = db.Column(db.Integer, default=0)  # 是否阅读，默认未阅读
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 发送时间
-    receivier = db.relationship('User',foreign_keys=to_user)
-    sender= db.relationship('User',foreign_keys=from_user)
+    receivier = db.relationship('User', foreign_keys=to_user)
+    sender = db.relationship('User', foreign_keys=from_user)
 
     def __repr__(self):
         return "<Message %r>" % self.id
 
 
-#好友
+# 好友
 class Friends(db.Model):
     __tablename__ = "friends"
     __table_args__ = {"useexisting": True}

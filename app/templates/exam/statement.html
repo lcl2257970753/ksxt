@@ -123,6 +123,7 @@
                                 <div style="font-size: 20px;padding: 10px;margin-bottom:10px;text-align: center">
                                     <strong>选择试卷：</strong>
                                     <select id="chose_exam">
+
                                         {% for (k,v) in result2.items() %}
                                             <option value="{{ k }}">{{ v.test_name }}</option>
                                         {% endfor %}
@@ -178,7 +179,7 @@
                             var tdBodys = '';
                             for (var i = 0, l = axisData.length; i < l; i++) {
                                 for (var j = 0; j < series.length; j++) {
-                                    if (typeof(series[j].data[i]) == 'object') {
+                                    if (typeof (series[j].data[i]) == 'object') {
                                         tdBodys += '<td>' + series[j].data[i].value + '</td>';
                                     } else {
                                         tdBodys += '<td>' + series[j].data[i] + '</td>';
@@ -235,7 +236,7 @@
                             var tdBodys = '';
                             for (var i = 0, l = axisData.length; i < l; i++) {
                                 for (var j = 0; j < series.length; j++) {
-                                    if (typeof(series[j].data[i]) == 'object') {
+                                    if (typeof (series[j].data[i]) == 'object') {
                                         tdBodys += '<td>' + series[j].data[i].value + '</td>';
                                     } else {
                                         tdBodys += '<td>' + series[j].data[i] + '</td>';
@@ -318,7 +319,7 @@
                                 var tdBodys = '';
                                 for (var i = 0, l = axisData.length; i < l; i++) {
                                     for (var j = 0; j < series.length; j++) {
-                                        if (typeof(series[j].data[i]) == 'object') {
+                                        if (typeof (series[j].data[i]) == 'object') {
                                             tdBodys += '<td>' + series[j].data[i].value + '</td>';
                                         } else {
                                             tdBodys += '<td>' + series[j].data[i] + '</td>';
