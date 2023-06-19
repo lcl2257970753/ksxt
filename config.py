@@ -20,7 +20,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     # SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:KCjd@123456@127.0.0.1:3306/questions"
-    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:KCjd@123456@43.140.247.64:3306/questions"
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:root@1259164270LCL@gxx@123.207.198.138:3306/questions"
 
 
 config = {
